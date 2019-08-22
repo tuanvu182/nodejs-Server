@@ -41,8 +41,8 @@ class App extends React.Component {
       <Router>
         <Header />
         <Alert />
-        <PrivateRoute exact path="/tasks" component={Tasks} />
         <Switch>
+          <PrivateRoute exact path="/tasks" component={Tasks} />
           <Route exact path="/login" component={Login} />
           <Route exact path="/signup" component={Signup} />
           <Route exact path="/" component={Landing} />

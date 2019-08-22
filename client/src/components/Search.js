@@ -24,6 +24,7 @@ class Search extends React.Component {
       <div className="search">
         <form onSubmit={e => this.onSubmit(e)}>
           <input
+            autoFocus
             type="text"
             placeholder="Enter your task"
             value={this.state.title}
