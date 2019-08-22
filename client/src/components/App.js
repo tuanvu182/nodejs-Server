@@ -1,5 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch,
+  Redirect
+} from "react-router-dom";
 import { connect } from "react-redux";
 
 import Header from "./Layouts/Header";
@@ -37,10 +42,12 @@ class App extends React.Component {
         <Header />
         <Alert />
         <PrivateRoute exact path="/tasks" component={Tasks} />
-        <Route exact path="/login" component={Login} />
-        <Route exact path="/signup" component={Signup} />
-        <Route exact path="/" component={Landing} />
-        <Route component={NotFound} />
+        <Switch>
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/signup" component={Signup} />
+          <Route exact path="/" component={Landing} />
+          <Route component={NotFound} />
+        </Switch>
         <Footer />
       </Router>
     );
