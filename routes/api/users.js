@@ -1,132 +1,118 @@
 const express = require("express");
 const router = new express.Router();
 const User = require("../../models/User");
-const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
-
 const auth = require("../../middleware/auth");
 
+// Test
 router.get("/", (req, res) => {
-  res.send("Users");
+  res.send("users");
 });
 
-// AUTH CHECK - PRIVATE
-router.post("/auth", auth, (req, res) => {
-  const user = req.user;
-  res.send(user);
-});
-
-// SIGNUP USER - Public
-router.post(
-  "/",
-  [
-    check("email", "Invalid email").isEmail(),
-    check("password", "Password must have at least 6 characters").isLength({
-      min: 6
-    })
-  ],
-  async (req, res) => {
-    // Validation result
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+// Create User - Public
+router.post("/", async (req, res) => {
+  try {
+    // Check user name
+    const isName = await User.findOne({ name: req.body.name });
+    if (isName !== null) {
+      throw new Error("Username has already been used!");
     }
 
-    // Take keys from request body object
-    const { email, password } = req.body;
-
-    try {
-      // Check User in DB
-      const isExist = await User.findOne({ email });
-      if (isExist) {
-        throw new Error("User already exist");
-      }
-
-      // Make new User
-      const user = new User({ email, password });
-
-      // Hash Password
-      user.password = await bcrypt.hash(password, 10);
-      await user.save();
-
-      // Send Token using object methods in mongoose modal
-      const token = await user.genToken();
-      res.send({ user, token });
-    } catch (e) {
-      res.status(400).json({ errors: [{ msg: e.message }] });
+    // Check user email
+    const isEmail = await User.findOne({ email: req.body.email });
+    if (isEmail !== null) {
+      throw new Error("Email has already been used!");
     }
+
+    // Make new user
+    const user = new User(req.body);
+
+    // Hash password
+    const hashedPw = await bcrypt.hash(req.body.password, 10);
+    user.password = hashedPw;
+    await user.save();
+
+    // Send Token
+    const token = await user.genToken();
+    res.status(201).send({ user, token });
+  } catch (e) {
+    res.status(400).send({ error: e.message });
   }
-);
+});
 
-// LOGIN USER - Public
+// Login User - Public
 router.post("/login", async (req, res) => {
   try {
-    // Check email and password
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new Error("Please provide a valid username and password");
+    // Check email
+    const user = await User.findOne({ email: req.body.email });
+    if (user === null) {
+      throw new Error("Email or password is not right");
     }
 
-    const passCheck = await bcrypt.compare(password, user.password);
-    if (!passCheck) {
-      throw new Error("Please provide a valid username and password");
+    // Check password
+    const isValid = await bcrypt.compare(req.body.password, user.password);
+    if (!isValid) {
+      throw new Error("Email or password is not right");
     }
 
     // Send token
     const token = await user.genToken();
     res.send({ user, token });
   } catch (e) {
-    res.status(404).json({ errors: [{ msg: e.message }] });
+    res.status(400).send({ error: e.message });
   }
 });
 
-// LOGOUT USER - Private
+// Auth User - Private
+router.get("/auth", auth, (req, res) => {
+  res.send(req.user);
+});
+
+// Logout User - Private
 router.post("/logout", auth, async (req, res) => {
   try {
-    //remove all tokens
     req.user.tokens = [];
     await req.user.save();
     res.send();
   } catch (e) {
-    res.json({ errors: [{ msg: e.message }] });
+    res.status(500).send({ error: e.message });
   }
 });
 
-// MODIFY USER - Private
-router.put(
-  "/current_user",
-  auth,
-  [
-    check("password", "Password must have at least 6 characters").isLength({
-      min: 6
-    })
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+// Updates user - Private
+router.patch("/current_user", auth, async (req, res) => {
+  try {
+    // Auth user and defines update element
+    const updates = Object.keys(req.body);
+    const allowUpdate = ["name", "email", "password"];
+    const validUpdate = updates.every(update => allowUpdate.includes(update));
+    if (!validUpdate) {
+      throw new Error("Invalid updates");
     }
 
-    const { password } = req.body;
+    // Change req user and update
+    updates.forEach(update => {
+      req.user[update] = req.body[update];
+    });
 
-    try {
-      req.user.password = await bcrypt.hash(password, 10);
-      await req.user.save();
-      res.send(req.user);
-    } catch (e) {
-      res.status(500).json({ errors: [{ msg: e.message }] });
+    // Hash password
+    if (req.body.password) {
+      req.user.password = await bcrypt.hash(req.user.password, 10);
     }
+    await req.user.save();
+    res.send(req.user);
+  } catch (e) {
+    res.status(400).send({ error: e.message });
   }
-);
+});
 
-// DELETE USER - Private
+// Delete user - Private
 router.delete("/current_user", auth, async (req, res) => {
   try {
     await req.user.remove();
-    res.send(req.user);
+    res.send();
   } catch (e) {
-    res.status(500).json({ errors: [{ msg: e.message }] });
+    res.status(500).send({ error: e.message });
   }
 });
 

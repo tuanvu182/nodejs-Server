@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const keys = require("../keys/keys");
+const keys = require("../config/keys");
 const Db = async () => {
   try {
     await mongoose.connect(
@@ -10,7 +10,7 @@ const Db = async () => {
       }
     );
   } catch (e) {
-    console.log(e.message);
+    throw new Error("Cannot connect to the DB!");
   }
 };
 

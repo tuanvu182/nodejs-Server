@@ -1,10 +1,10 @@
 import React, { Fragment } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { logout, resetTask } from "../../actions";
-import { withRouter } from "react-router";
+import { logout } from "../../actions/auth";
+import { withRouter } from "react-router-dom";
 
-const Header = ({ isAuth, userEmail, logout, resetTask, history }) => {
+const Header = ({ auth, loading, user, logout, history }) => {
   const noUser = () => {
     return (
       <Fragment>
@@ -20,47 +20,50 @@ const Header = ({ isAuth, userEmail, logout, resetTask, history }) => {
     );
   };
 
-  const User = () => {
+  const User = ({ user, logout, history }) => {
     const onClick = async () => {
-      await logout();
-      resetTask();
       history.push("/");
+      await logout();
     };
     return (
       <Fragment>
         <li>
-          <Link to="/tasks">{userEmail}</Link>
+          <Link to="/blog">{user}</Link>
         </li>
         <li>
-          <a href="#!" onClick={onClick}>
+          <a onClick={onClick} href="#!">
             Logout
           </a>
         </li>
       </Fragment>
     );
   };
+
   return (
     <div className="header">
       <div>
         <Link to="/" className="branding">
-          My Task
+          My Blog
         </Link>
       </div>
       <ul className="link-group">
-        {!isAuth || userEmail === null ? noUser() : User()}
+        {!auth && loading === false
+          ? noUser()
+          : User({ user, logout, history })}
       </ul>
     </div>
   );
 };
 
 const mapStateToProps = state => ({
-  isAuth: state.auth.isAuthenticated,
-  userEmail: state.auth.user
+  auth: state.auth.auth,
+  loading: state.auth.loading,
+  user: state.auth.user
 });
 
 export default withRouter(
   connect(
     mapStateToProps,
-    { logout, resetTask }
+    { logout }
   )(Header)
 );

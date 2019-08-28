@@ -1,4 +1,5 @@
 import { SET_ALERT, REMOVE_ALERT } from "../actions/types";
+
 const initialState = [];
 
 export const alertReducer = (state = initialState, action) => {

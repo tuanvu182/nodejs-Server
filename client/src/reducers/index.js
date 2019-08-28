@@ -1,12 +1,12 @@
 import { combineReducers } from "redux";
-import { showSearchReducer } from "./showSearchReducer";
+import { reducer as formReducer } from "redux-form";
 import { alertReducer } from "./alertReducer";
 import { authReducer } from "./authReducer";
-import { taskReducer } from "./taskReducer";
+import { postReducer } from "./postReduce";
 
 export default combineReducers({
-  searchShow: showSearchReducer,
+  form: formReducer,
   alerts: alertReducer,
   auth: authReducer,
-  tasks: taskReducer
+  posts: postReducer
 });

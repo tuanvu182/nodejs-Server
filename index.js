@@ -11,8 +11,8 @@ app.use(express.json());
 Db();
 
 // Lauch Router
-app.use("/api/users", require("./routes/api/users"));
-app.use("/api/tasks", require("./routes/api/tasks"));
+app.use("/api/v1/users", require("./routes/api/users"));
+app.use("/api/v1/posts", require("./routes/api/posts"));
 
 // Server in production setup
 if (process.env.NODE_ENV === "production") {
