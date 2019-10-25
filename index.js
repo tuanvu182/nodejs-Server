@@ -13,6 +13,7 @@ Db();
 // Lauch Router
 app.use("/api/v1/users", require("./routes/api/users"));
 app.use("/api/v1/posts", require("./routes/api/posts"));
+app.use("/api/v1/comments", require("./routes/api/comments"));
 
 // Server in production setup
 if (process.env.NODE_ENV === "production") {

@@ -4,6 +4,11 @@ const router = new express.Router();
 const auth = require("../../middleware/auth");
 const Post = require("../../models/Post");
 
+// Test
+router.get("/test", (req, res) => {
+  res.send("Posts worked");
+});
+
 ////////////////////////
 // Get all posts - Public
 ////////////////////////
