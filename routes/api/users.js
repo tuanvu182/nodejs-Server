@@ -5,11 +5,13 @@ const bcrypt = require("bcryptjs");
 const auth = require("../../middleware/auth");
 
 // Test
-router.get("/", (req, res) => {
-  res.send("users");
+router.get("/test", (req, res) => {
+  res.send("Users worked");
 });
 
+////////////////////////
 // Create User - Public
+////////////////////////
 router.post("/", async (req, res) => {
   try {
     // Check user name
@@ -40,7 +42,9 @@ router.post("/", async (req, res) => {
   }
 });
 
+////////////////////////
 // Login User - Public
+////////////////////////
 router.post("/login", async (req, res) => {
   try {
     // Check email
@@ -63,12 +67,16 @@ router.post("/login", async (req, res) => {
   }
 });
 
+////////////////////////
 // Auth User - Private
+////////////////////////
 router.get("/auth", auth, (req, res) => {
   res.send(req.user);
 });
 
+////////////////////////
 // Logout User - Private
+////////////////////////
 router.post("/logout", auth, async (req, res) => {
   try {
     req.user.tokens = [];
@@ -79,7 +87,9 @@ router.post("/logout", auth, async (req, res) => {
   }
 });
 
+////////////////////////
 // Updates user - Private
+////////////////////////
 router.patch("/current_user", auth, async (req, res) => {
   try {
     // Auth user and defines update element
@@ -106,7 +116,9 @@ router.patch("/current_user", auth, async (req, res) => {
   }
 });
 
+////////////////////////
 // Delete user - Private
+////////////////////////
 router.delete("/current_user", auth, async (req, res) => {
   try {
     await req.user.remove();

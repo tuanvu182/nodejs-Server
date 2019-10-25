@@ -4,7 +4,9 @@ const router = new express.Router();
 const auth = require("../../middleware/auth");
 const Post = require("../../models/Post");
 
+////////////////////////
 // Get all posts - Public
+////////////////////////
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find().sort({ dateCreated: -1 });
@@ -14,7 +16,9 @@ router.get("/", async (req, res) => {
   }
 });
 
+////////////////////////
 // Get post - Private
+////////////////////////
 router.get("/current_user", auth, async (req, res) => {
   try {
     const _id = req.user.id;
@@ -25,7 +29,9 @@ router.get("/current_user", auth, async (req, res) => {
   }
 });
 
+////////////////////////
 // Make post - Private
+////////////////////////
 router.post("/", auth, async (req, res) => {
   try {
     const post = await new Post(req.body);
@@ -38,7 +44,9 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
+////////////////////////
 // Edit Post - Private
+////////////////////////
 router.patch("/:id", auth, async (req, res) => {
   try {
     const updates = Object.keys(req.body);
@@ -64,7 +72,9 @@ router.patch("/:id", auth, async (req, res) => {
   }
 });
 
+////////////////////////
 // Delete Post - Private
+////////////////////////
 router.delete("/:id", auth, async (req, res) => {
   try {
     const post = await Post.findOne({
